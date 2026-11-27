@@ -100,7 +100,7 @@ BOOK_ART = '<svg viewBox="0 0 200 200" fill="none" aria-hidden="true"><circle cx
 
 def header(active):
     nav = "".join(f'<a href="{url(path)}"' + (' aria-current="page"' if active == name else '') + f'>{name}</a>'
-                  for name, path in [("文章", ""), ("归档", "archive/"), ("关于", "about/")])
+                  for name, path in [("首页", ""), ("文章", "notes/"), ("归档", "archive/"), ("关于", "about/")])
     return f'''<a class="skip-link" href="#main">跳转到正文</a>
 <header class="site-header"><div class="wrap header-inner">
 <a class="brand" href="{url()}" aria-label="{esc(CONFIG['title'])}首页"><span class="brand-mark" aria-hidden="true">{esc(CONFIG['title'][0])}</span><span class="brand-name">{esc(CONFIG['title'])}<span class="brand-en">{esc(CONFIG['english_title'])}</span></span></a>
@@ -137,7 +137,7 @@ def card(post):
 
 
 def sidebar():
-    categories = ''.join(f'<a class="category-link" href="{url()}?category={quote(name)}#articles"><span>{esc(name)}</span><span>{count:02d}</span></a>' for name, count in CATEGORIES.items())
+    categories = ''.join(f'<a class="category-link" href="{url("notes/")}?category={quote(name)}#articles"><span>{esc(name)}</span><span>{count:02d}</span></a>' for name, count in CATEGORIES.items())
     return f'''<aside class="sidebar" aria-label="博客信息"><section class="sidebar-section"><div class="profile-avatar" aria-hidden="true">w.</div><h3 class="profile-name">{esc(CONFIG['author'])}</h3><p>保持好奇，慢慢记录。<br>关于学习、创造与日常。</p><a class="text-link" href="{url('about/')}">多了解一点</a></section><section class="sidebar-section"><h3>写作分类</h3>{categories}</section><section class="sidebar-section"><p class="small-label">A NOTE TO SELF</p><p class="sidebar-note">不必等想清楚了，<br>才开始写下来。</p><p>这个博客，从一点点记录开始。</p></section></aside>'''
 
 
@@ -151,10 +151,18 @@ def empty_state():
 
 
 def home():
+    return page('你好，我是 ' + CONFIG['author'], f'''<main id="main" class="wrap personal-home">
+<section class="intro-hero" aria-labelledby="intro-title"><div class="intro-copy"><div class="eyebrow">A LITTLE INTRODUCTION</div><h1 id="intro-title">你好，我是<br><em>{esc(CONFIG['author'])}。</em></h1><p class="intro-description">这里记录我的学习、创作与日常。</p><p class="intro-welcome">欢迎来到我的个人小站。</p><div class="intro-actions"><a class="intro-primary" href="{url('notes/')}">读我的文章</a><a class="intro-secondary" href="{esc(CONFIG['github'])}">在 GitHub 找到我</a></div></div><div class="intro-portrait" aria-hidden="true"><div class="intro-orbit"><span>w.</span></div><span class="intro-portrait-caption">a space of my own.</span></div></section>
+<section class="intro-about" aria-labelledby="intro-about-title"><div><div class="eyebrow">ABOUT THIS SPACE</div><h2 id="intro-about-title">一点介绍，<br>一些正在生长的记录。</h2></div><div class="intro-about-copy"><p>你好，我是 {esc(CONFIG['author'])}。这里记录我的学习、创作与日常。</p><p>这个小站用来存放文字、想法，以及动手实践的过程。希望每一次记录，都能让思考变得更清晰一点。</p><a class="text-link" href="{url('about/')}">更多关于我</a></div></section>
+<div class="intro-links"><section class="intro-link-card"><span class="eyebrow">WRITING</span><h2>文字与笔记</h2><p>把学习中的发现、实践的过程和日常随想，慢慢写下来。</p><a class="text-link" href="{url('notes/')}">浏览文章</a></section><section class="intro-link-card"><span class="eyebrow">ELSEWHERE</span><h2>保持联系</h2><p>你可以在 GitHub 找到我，也可以通过 RSS 订阅新的文章。</p><div class="intro-social"><a class="text-link" href="{esc(CONFIG['github'])}">GitHub</a><a class="text-link" href="{url('feed.xml')}">RSS 订阅</a></div></section></div>
+</main>''', active='首页', description=f"你好，我是 {CONFIG['author']}。这里记录我的学习、创作与日常。")
+
+
+def notes():
     featured = next((post for post in POSTS if post['featured']), POSTS[0])
-    return page('', f'''<main id="main" class="wrap"><section class="hero"><div><div class="eyebrow">NOTES ON LEARNING & LIVING</div><h1>在这里，留下一点<br><em>思考的痕迹。</em></h1><p class="hero-description">{esc(CONFIG['description'])}</p><div class="hero-signature"><span class="avatar" aria-hidden="true">w.</span><span>{esc(CONFIG['author'])} 的个人博客</span></div></div><div class="hero-art">{HERO_ART}</div></section>
+    return page('文章与笔记', f'''<main id="main" class="wrap"><section class="hero"><div><div class="eyebrow">NOTES ON LEARNING & LIVING</div><h1>在这里，留下一点<br><em>思考的痕迹。</em></h1><p class="hero-description">{esc(CONFIG['description'])}</p><div class="hero-signature"><span class="avatar" aria-hidden="true">w.</span><span>{esc(CONFIG['author'])} 的个人博客</span></div></div><div class="hero-art">{HERO_ART}</div></section>
 <section aria-label="置顶文章"><div class="section-head"><h2>值得停留</h2><span class="caption">FEATURED NOTE</span></div><a class="feature" href="{url(featured['path'])}"><div class="feature-copy">{post_meta(featured)}<h2>{esc(featured['title'])}</h2><p>{esc(featured['summary'])}</p><span class="read-label">读这篇文章</span></div><div class="feature-art">{BOOK_ART}</div></a></section>
-<div class="content-layout"><section id="articles" aria-label="全部文章"><div class="section-head list-heading"><h2>最近的记录 <span>Latest notes</span></h2><span class="caption" data-result-count aria-live="polite">{len(POSTS)} 篇文章</span></div>{listing_tools()}{''.join(card(post) for post in POSTS)}{empty_state()}</section>{sidebar()}</div></main>''')
+<div class="content-layout"><section id="articles" aria-label="全部文章"><div class="section-head list-heading"><h2>最近的记录 <span>Latest notes</span></h2><span class="caption" data-result-count aria-live="polite">{len(POSTS)} 篇文章</span></div>{listing_tools()}{''.join(card(post) for post in POSTS)}{empty_state()}</section>{sidebar()}</div></main>''', path='notes/')
 
 
 def archive():
@@ -176,7 +184,7 @@ def article(post, index):
     next_link = '' if not next_post else f'<div class="article-next"><span>接着读一篇</span><a href="{url(next_post["path"])}">{esc(next_post["title"])}</a></div>'
     toc = f'<details class="toc" open><summary>本文目录</summary>{post["toc"]}</details>' if '<li>' in post['toc'] else ''
     return page(post['title'], f'''<div class="article-progress" data-reading-progress aria-hidden="true"></div>
-<d-front-matter><script type="text/json">{frontmatter}</script></d-front-matter><main id="main" class="wrap article-main"><div class="article-top"><a class="back-link" href="{url()}#articles">返回文章列表</a><d-title><div class="eyebrow">{esc(post['category'])} · NOTE</div><h1>{esc(post['title'])}</h1><p>{esc(post['summary'])}</p></d-title><d-byline hidden></d-byline><div class="article-meta"><span>{esc(CONFIG['author'])}</span><time datetime="{post['date']}">{post['date'].replace('-', '.')}</time><span>约 {post['minutes']} 分钟阅读</span></div></div><div class="reading-layout">{toc}<d-article>{post['html']}</d-article><d-appendix><d-footnote-list></d-footnote-list><d-citation-list></d-citation-list></d-appendix><div class="article-end">写下此刻，留给以后的自己。<br><a href="{url('feed.xml')}">RSS 订阅</a> · <a href="{url('archive/')}">更多文章</a></div>{next_link}</div></main>''', path=post['path'], description=post['summary'], post=post)
+<d-front-matter><script type="text/json">{frontmatter}</script></d-front-matter><main id="main" class="wrap article-main"><div class="article-top"><a class="back-link" href="{url('notes/')}#articles">返回文章列表</a><d-title><div class="eyebrow">{esc(post['category'])} · NOTE</div><h1>{esc(post['title'])}</h1><p>{esc(post['summary'])}</p></d-title><d-byline hidden></d-byline><div class="article-meta"><span>{esc(CONFIG['author'])}</span><time datetime="{post['date']}">{post['date'].replace('-', '.')}</time><span>约 {post['minutes']} 分钟阅读</span></div></div><div class="reading-layout">{toc}<d-article>{post['html']}</d-article><d-appendix><d-footnote-list></d-footnote-list><d-citation-list></d-citation-list></d-appendix><div class="article-end">写下此刻，留给以后的自己。<br><a href="{url('feed.xml')}">RSS 订阅</a> · <a href="{url('archive/')}">更多文章</a></div>{next_link}</div></main>''', path=post['path'], description=post['summary'], post=post)
 
 
 def write(path, text):
@@ -203,6 +211,7 @@ def build():
     OUT.mkdir()
     shutil.copytree(ROOT / 'assets', OUT / 'assets')
     write('index.html', home())
+    write('notes/index.html', notes())
     write('archive/index.html', archive())
     write('about/index.html', about())
     write('404.html', page('页面未找到', f'<main id="main" class="wrap not-found"><div class="eyebrow">PAGE NOT FOUND</div><h1>404</h1><p>这一页暂时没有文字。去其他地方看看吧。</p><a class="pill-link" href="{url()}">回到首页</a></main>', path='404.html'))
@@ -212,13 +221,13 @@ def build():
     ns = 'http://www.sitemaps.org/schemas/sitemap/0.9'
     ET.register_namespace('', ns)
     sitemap = ET.Element(f'{{{ns}}}urlset')
-    for path in ['', 'archive/', 'about/', *(post['path'] for post in POSTS)]:
+    for path in ['', 'notes/', 'archive/', 'about/', *(post['path'] for post in POSTS)]:
         entry = ET.SubElement(sitemap, f'{{{ns}}}url')
         ET.SubElement(entry, f'{{{ns}}}loc').text = absolute(path)
     write('sitemap.xml', '<?xml version="1.0" encoding="utf-8"?>\n' + ET.tostring(sitemap, encoding='unicode'))
     write('robots.txt', f'User-agent: *\nAllow: /\nSitemap: {absolute("sitemap.xml")}\n')
     write('.nojekyll', '')
-    print(f'Built {len(POSTS)} posts and 4 pages → {OUT}')
+    print(f'Built {len(POSTS)} posts and 5 pages → {OUT}')
 
 
 if __name__ == '__main__':
