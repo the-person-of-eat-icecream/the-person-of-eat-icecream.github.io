@@ -6,6 +6,7 @@ from datetime import date, datetime, time, timezone
 from email.utils import format_datetime
 from html import escape
 from html.parser import HTMLParser
+from hashlib import sha256
 import json
 import os
 from pathlib import Path
@@ -36,6 +37,11 @@ def url(path=""):
 
 def absolute(path=""):
     return f"{SITE_URL}/{path.lstrip('/')}"
+
+
+def asset_url(path):
+    version = sha256((ROOT / path).read_bytes()).hexdigest()[:10]
+    return f"{url(path)}?v={version}"
 
 
 class PlainText(HTMLParser):
@@ -103,7 +109,7 @@ def header(active):
                   for name, path in [("首页", ""), ("文章", "notes/"), ("归档", "archive/"), ("关于", "about/")])
     return f'''<a class="skip-link" href="#main">跳转到正文</a>
 <header class="site-header"><div class="wrap header-inner">
-<a class="brand" href="{url()}" aria-label="{esc(CONFIG['title'])}首页"><span class="brand-mark" aria-hidden="true">{esc(CONFIG['title'][0])}</span><span class="brand-name">{esc(CONFIG['title'])}<span class="brand-en">{esc(CONFIG['english_title'])}</span></span></a>
+<a class="brand" href="{url()}" aria-label="{esc(CONFIG['title'])}首页"><span class="brand-monogram">{esc(CONFIG['title'])}</span></a>
 <nav class="nav" aria-label="主导航">{nav}<button class="theme-toggle" data-theme-toggle aria-label="切换到深色模式" aria-pressed="false">{THEME_ICON}<span>深色</span></button></nav>
 </div></header>'''
 
@@ -123,8 +129,8 @@ def page(title, content, active="文章", path="", description=None, post=None):
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{esc(full_title)}</title><meta name="description" content="{esc(description)}"><meta name="author" content="{esc(CONFIG['author'])}">
 <meta property="og:title" content="{esc(full_title)}"><meta property="og:description" content="{esc(description)}"><meta property="og:type" content="{'article' if post else 'website'}"><meta property="og:url" content="{esc(canonical)}"><meta property="og:locale" content="zh_CN">
-<link rel="canonical" href="{esc(canonical)}"><link rel="icon" type="image/svg+xml" href="{url('assets/favicon.svg')}"><link rel="alternate" type="application/rss+xml" title="{esc(CONFIG['title'])}" href="{url('feed.xml')}">
-<script>{THEME_INIT}</script><link rel="stylesheet" href="{url('assets/style.css')}">{extra}<script src="{url('assets/app.js')}" defer></script></head>
+<link rel="canonical" href="{esc(canonical)}"><link rel="icon" type="image/svg+xml" href="{asset_url('assets/favicon.svg')}"><link rel="alternate" type="application/rss+xml" title="{esc(CONFIG['title'])}" href="{url('feed.xml')}">
+<script>{THEME_INIT}</script><link rel="stylesheet" href="{asset_url('assets/style.css')}">{extra}<script src="{url('assets/app.js')}" defer></script></head>
 <body class="blog-page">{header(active)}{content}{footer()}</body></html>'''
 
 
@@ -174,7 +180,7 @@ def archive():
 
 def about():
     paragraphs = ''.join(f'<p>{esc(paragraph)}</p>' for paragraph in CONFIG['about'])
-    return page('关于我', f'''<main id="main" class="wrap"><div class="page-intro"><div class="eyebrow">A LITTLE ABOUT ME</div><h1>关于我，也关于这里。</h1><p>屏幕的另一边，很高兴与你相遇。</p></div><div class="about-body">{paragraphs}<div class="about-card"><strong>为什么叫「{esc(CONFIG['title'])}」</strong><p>给匆忙的日常留一个停顿，让那些细小的想法，有机会成为文字。</p></div><h2>找到我</h2><p><a class="text-link" href="{esc(CONFIG['github'])}">GitHub · {esc(CONFIG['author'])}</a></p><p><a class="text-link" href="{url('feed.xml')}">通过 RSS 订阅新的文章</a></p></div></main>''', active='关于', path='about/')
+    return page('关于我', f'''<main id="main" class="wrap"><div class="page-intro"><div class="eyebrow">A LITTLE ABOUT ME</div><h1>关于我，也关于这里。</h1><p>屏幕的另一边，很高兴与你相遇。</p></div><div class="about-body">{paragraphs}<div class="about-card"><strong>关于这个小站</strong><p>用一个简单的名字，记录学习、创作与日常。</p></div><h2>找到我</h2><p><a class="text-link" href="{esc(CONFIG['github'])}">GitHub · {esc(CONFIG['author'])}</a></p><p><a class="text-link" href="{url('feed.xml')}">通过 RSS 订阅新的文章</a></p></div></main>''', active='关于', path='about/')
 
 
 def article(post, index):
