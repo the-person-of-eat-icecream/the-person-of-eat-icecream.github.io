@@ -21,7 +21,7 @@ featured: true
 它的整体框架分为训练数据构建和位姿修正两部分。训练数据以 GSO 数据集中约 944 个物体扫描为基础，借助对称性先验扩增到约 5 万个物体实例，再通过物理渲染生成约 200 万张 RGB-D 图像，训练场景覆盖有纹理、无纹理和同类物体重复摆放等情况。构建训练样本时，程序在参考位姿上加入旋转和平移扰动——旋转扰动最高约 90°——让网络学习把有偏差的候选位姿逐步修正到正确值。
 
 <figure>
-<img src="/assets/projects/wapr/framework.png" alt="WAPR 整体框架图，上半部分为 SA6D 训练数据构建流程，下半部分为位姿修正网络结构" loading="lazy" width="870" height="640" style="width:100%;height:auto">
+<img src="/assets/projects/wapr/framework.png" alt="WAPR 整体框架图，上半部分为 SA6D 训练数据构建流程，下半部分为位姿修正网络结构" loading="lazy" width="870" height="640" style="width:100%;max-width:870px;height:auto;display:block;margin-inline:auto">
 <figcaption>WAPR 整体框架：上半部分是 SA6D 对称感知训练数据的构建流程，下半部分是比较真实观测与渲染观测、逐步修正位姿的网络结构。</figcaption>
 </figure>
 
@@ -72,21 +72,21 @@ python examples/04_6d_localization.py
 **检测与分割。** 用 LM-O 场景 2 第 307 帧和包含 8 类物体的模型库做测试，程序产生 79 个候选区域，匹配筛选后保留 63 条结果，预热后的单帧处理耗时约 **1.317 s**。结果里能看到明显的问题：obj11 和 obj10 类别判断错误，obj1 因被遮挡漏检，obj8 出现重复检测。流程能跑通，但离直接可用还有距离。
 
 <figure>
-<img src="/assets/projects/wapr/lmo-detection.png" alt="LM-O 官方样例的检测分割输出，多个物体被框选并标注类别与二维评分" loading="lazy" width="640" height="480" style="width:100%;height:auto">
+<img src="/assets/projects/wapr/lmo-detection.png" alt="LM-O 官方样例的检测分割输出，多个物体被框选并标注类别与二维评分" loading="lazy" width="640" height="480" style="width:100%;max-width:640px;height:auto;display:block;margin-inline:auto">
 <figcaption>LM-O 第 307 帧的检测分割输出（保留 12 个高分结果）。电钻、鸭子等多数目标被正确框选，也存在类别错误与重复检测。</figcaption>
 </figure>
 
 **单物体位姿估计。** 打孔器样例在给定掩码的条件下，输出物体坐标系到相机坐标系的变换矩阵，平移向量约为（−0.119，0.091，0.986）m。使用 TensorRT 后端，预热后的位姿估计耗时约 **74.9 ms**，投影可视化正常。
 
 <figure>
-<img src="/assets/projects/wapr/holepuncher-pose.png" alt="打孔器样例的 6D 位姿估计输出，红色三维包围框与投影轮廓对齐目标" loading="lazy" width="640" height="480" style="width:100%;height:auto">
+<img src="/assets/projects/wapr/holepuncher-pose.png" alt="打孔器样例的 6D 位姿估计输出，红色三维包围框与投影轮廓对齐目标" loading="lazy" width="640" height="480" style="width:100%;max-width:640px;height:auto;display:block;margin-inline:auto">
 <figcaption>打孔器样例的位姿估计输出（6D 评分 0.87）：红色三维包围框和投影轮廓落在目标区域上。</figcaption>
 </figure>
 
 **多类别在线定位。** 不读取预计算检测结果，让程序现场生成检测框和掩码，在 8 类物体、每类一个实例的约束下，38 个候选区域经筛选保留 34 条检测，最终输出 8 个实例的位姿。由于显存不足，这次用了小模型加 PyTorch 的配置：前端约 **0.739 s**，位姿估计约 **9.405 s**。相比读取预计算检测的流程，这一版是对多个候选做完位姿估计后，再按六维评分筛选，而不是先按二维评分每类保留一个。
 
 <figure>
-<img src="/assets/projects/wapr/lmo-multiclass-pose.png" alt="LM-O 多类别在线定位的六维评分输出，多个物体的红色三维包围框各对齐一个目标" loading="lazy" width="640" height="480" style="width:100%;height:auto">
+<img src="/assets/projects/wapr/lmo-multiclass-pose.png" alt="LM-O 多类别在线定位的六维评分输出，多个物体的红色三维包围框各对齐一个目标" loading="lazy" width="640" height="480" style="width:100%;max-width:640px;height:auto;display:block;margin-inline:auto">
 <figcaption>多类别在线定位的六维评分输出：电钻、胶水、罐头、打孔器等 8 个实例各保留一个位姿，多数投影与目标吻合。</figcaption>
 </figure>
 
@@ -141,12 +141,12 @@ python examples/04_6d_localization.py
 程序产生 30 个候选区域，筛选后保留 28 条检测，其中一条因缺少有效深度被跳过，最终得到 27 条位姿预测；渲染掩码去重后保留 18 条。前端约 **1.027 s**，位姿估计约 **7.432 s**，另有检测和位姿两个阶段的预热分别约 3.5 s 和 22.6 s（不计入处理耗时）。
 
 <figure>
-<img src="/assets/projects/wapr/zigzag-2d.png" alt="Zigzag 零件堆叠场景的二维检测框与预测掩码，金属零件区域密集重叠" loading="lazy" width="1024" height="819" style="width:100%;height:auto">
+<img src="/assets/projects/wapr/zigzag-2d.png" alt="Zigzag 零件堆叠场景的二维检测框与预测掩码，金属零件区域密集重叠" loading="lazy" width="1024" height="819" style="width:100%;max-width:1024px;height:auto;display:block;margin-inline:auto">
 <figcaption>Zigzag 场景的二维检测结果：中央零件堆密集重叠，周围球体等背景区域也出现了候选框。</figcaption>
 </figure>
 
 <figure>
-<img src="/assets/projects/wapr/zigzag-6d.png" alt="Zigzag 零件的三维包围框与投影轮廓输出，零件区域高分结果与低分误检并存" loading="lazy" width="1024" height="819" style="width:100%;height:auto">
+<img src="/assets/projects/wapr/zigzag-6d.png" alt="Zigzag 零件的三维包围框与投影轮廓输出，零件区域高分结果与低分误检并存" loading="lazy" width="1024" height="819" style="width:100%;max-width:1024px;height:auto;display:block;margin-inline:auto">
 <figcaption>六维输出：零件堆上出现了多条评分接近 1 的高分位姿，也有低至 0.13～0.28 的背景误检被保留。</figcaption>
 </figure>
 
