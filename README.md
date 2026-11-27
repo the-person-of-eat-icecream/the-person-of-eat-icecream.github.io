@@ -1,6 +1,6 @@
-# 片刻 · Quiet Notes
+# w.
 
-wujunru 的个人博客。以 [Distill Blog Template](https://huggingface.co/spaces/lvwerra/distill-blog-template) 为基础，扩展为完整的中文个人博客。线上地址为 [片刻](https://the-person-of-eat-icecream.github.io/)。
+wujunru 的个人博客。以 [Distill Blog Template](https://huggingface.co/spaces/lvwerra/distill-blog-template) 为基础，扩展为完整的中文个人博客。线上地址为 [w.](https://the-person-of-eat-icecream.github.io/)。
 
 包含首页、全文搜索、分类筛选、年份归档、关于页、独立文章链接、文章目录、阅读进度、原版 Distill 旁注和脚注、深浅色模式、RSS、站点地图和 404 页面。文章为构建时生成的 HTML，关闭 JavaScript 也可阅读。
 
