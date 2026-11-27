@@ -71,9 +71,24 @@ python examples/04_6d_localization.py
 
 **检测与分割。** 用 LM-O 场景 2 第 307 帧和包含 8 类物体的模型库做测试，程序产生 79 个候选区域，匹配筛选后保留 63 条结果，预热后的单帧处理耗时约 **1.317 s**。结果里能看到明显的问题：obj11 和 obj10 类别判断错误，obj1 因被遮挡漏检，obj8 出现重复检测。流程能跑通，但离直接可用还有距离。
 
+<figure>
+<img src="/assets/projects/wapr/lmo-detection.png" alt="LM-O 官方样例的检测分割输出，多个物体被框选并标注类别与二维评分" loading="lazy" width="640" height="480" style="width:100%;height:auto">
+<figcaption>LM-O 第 307 帧的检测分割输出（保留 12 个高分结果）。电钻、鸭子等多数目标被正确框选，也存在类别错误与重复检测。</figcaption>
+</figure>
+
 **单物体位姿估计。** 打孔器样例在给定掩码的条件下，输出物体坐标系到相机坐标系的变换矩阵，平移向量约为（−0.119，0.091，0.986）m。使用 TensorRT 后端，预热后的位姿估计耗时约 **74.9 ms**，投影可视化正常。
 
+<figure>
+<img src="/assets/projects/wapr/holepuncher-pose.png" alt="打孔器样例的 6D 位姿估计输出，红色三维包围框与投影轮廓对齐目标" loading="lazy" width="640" height="480" style="width:100%;height:auto">
+<figcaption>打孔器样例的位姿估计输出（6D 评分 0.87）：红色三维包围框和投影轮廓落在目标区域上。</figcaption>
+</figure>
+
 **多类别在线定位。** 不读取预计算检测结果，让程序现场生成检测框和掩码，在 8 类物体、每类一个实例的约束下，38 个候选区域经筛选保留 34 条检测，最终输出 8 个实例的位姿。由于显存不足，这次用了小模型加 PyTorch 的配置：前端约 **0.739 s**，位姿估计约 **9.405 s**。相比读取预计算检测的流程，这一版是对多个候选做完位姿估计后，再按六维评分筛选，而不是先按二维评分每类保留一个。
+
+<figure>
+<img src="/assets/projects/wapr/lmo-multiclass-pose.png" alt="LM-O 多类别在线定位的六维评分输出，多个物体的红色三维包围框各对齐一个目标" loading="lazy" width="640" height="480" style="width:100%;height:auto">
+<figcaption>多类别在线定位的六维评分输出：电钻、胶水、罐头、打孔器等 8 个实例各保留一个位姿，多数投影与目标吻合。</figcaption>
+</figure>
 
 **连续帧跟踪。** TACO 样例中同时跟踪盒子与滚轮两个目标：首帧用点击点生成掩码并估计初始位姿，之后每一帧都以上一帧位姿为起点渲染模型并修正。在这段 30 帧的序列里，两个目标的三维包围框和模型投影始终跟随物体，没有出现身份交换。后续 29 帧的批量位姿更新平均约 **59 ms／帧**。
 
