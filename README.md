@@ -1,6 +1,6 @@
 # 片刻 · Quiet Notes
 
-wujunru 的个人博客。以 [Distill Blog Template](https://huggingface.co/spaces/lvwerra/distill-blog-template) 为基础，扩展为完整的中文个人博客。目标地址为 https://the-person-of-eat-icecream.github.io/。
+wujunru 的个人博客。以 [Distill Blog Template](https://huggingface.co/spaces/lvwerra/distill-blog-template) 为基础，扩展为完整的中文个人博客。线上地址为 [片刻](https://the-person-of-eat-icecream.github.io/)。
 
 包含首页、全文搜索、分类筛选、年份归档、关于页、独立文章链接、文章目录、阅读进度、原版 Distill 旁注和脚注、深浅色模式、RSS、站点地图和 404 页面。文章为构建时生成的 HTML，关闭 JavaScript 也可阅读。
 
@@ -17,7 +17,7 @@ python scripts/check.py
 python -m http.server 8000 --directory dist --bind 127.0.0.1
 ```
 
-打开 http://127.0.0.1:8000/。修改文件后重新运行构建脚本并刷新页面。
+打开 [本地预览](http://127.0.0.1:8000/)。修改文件后重新运行构建脚本并刷新页面。
 
 ## 修改个人资料
 
@@ -55,7 +55,7 @@ featured: false
 2. 将**本目录内部的源文件**上传到仓库的 `main` 分支，包含隐藏的 `.github/workflows/deploy.yml`，不包含 `.venv/` 和 `dist/`。不要把 `quiet-notes` 外层目录一起上传。
 3. 在仓库 **Settings → Pages → Build and deployment → Source** 选择 **GitHub Actions**。
 4. 在 **Actions → Build and deploy blog** 运行工作流，或向 `main` 推送新的提交。
-5. 工作流成功后，访问 https://the-person-of-eat-icecream.github.io/。
+5. 工作流成功后，访问 [线上博客](https://the-person-of-eat-icecream.github.io/)。
 
 之后新增或修改 Markdown 文章并推送到 `main`，网站会自动重新构建和部署。不需要付费服务器或数据库。此仓库使用 GitHub 提供的 Pages 工作流，仅部署生成的 `dist/`。
 
